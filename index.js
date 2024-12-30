@@ -16,8 +16,9 @@
 // // Start the HTTPS server
 // server.listen(443, () => console.log('Listening on port 443'));
 
-import * as crypto from "node:crypto";
+// import * as crypto from "node:crypto";
 
+const crypto = require("crypto");
 const WebSocket = require("ws");
 
 
@@ -73,6 +74,7 @@ wss.on("connection", ws => {
 
     ws.on("message", message => {
         let data = JSON.parse(message);
+        console.log(data);
 
         switch(data.type) {
             case "command":
@@ -86,6 +88,12 @@ wss.on("connection", ws => {
                 break;
             case 3:
                 endTurn(ws,data);
+                break;
+            case 100:
+                registerName(ws, data);
+                break;
+            case 101:
+                createRoom(ws);
                 break;
         }
     })
@@ -119,13 +127,14 @@ function createRoom(ws) {
     let room = {"owner": ws, "clients": [ws]};
     let id;
     do {
-        id = crypto.randomBytes(20).toString('hex');
+        id = crypto.randomBytes(10).toString('hex');
     } while (id in rooms);
 
     rooms.set(id, room);
     ws.room = room;
     ws.roomID = id;
     ws.state = state.ROOM;
+    sendMsgNewRoomId(ws, id);
 }
 
 function joinRoom(ws, data) {
@@ -498,4 +507,10 @@ function sendMsgUpdateClients(ws, room) {
 function sendMsgNewOwner(ws) {
     let message = {type: 204};
     ws.send(JSON.stringify(message));
+}
+
+//TYPE 205
+function sendMsgNewRoomId(ws, id) {
+    let message = {type: 205, id: id};
+    ws.send(JSON.stringify((message)));
 }
