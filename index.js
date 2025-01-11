@@ -81,6 +81,7 @@ wss.on("connection", ws => {
 
     ws.on("message", message => {
         let data = JSON.parse(message);
+        if (!data.hasOwnProperty("type")) ws.close();
         console.log(data);
 
         switch(data.type) {
@@ -114,6 +115,8 @@ wss.on("connection", ws => {
             case 105:
                 throwDice(ws);
                 break;
+            case 106:
+                endTurn(ws, data);
         }
     })
 
@@ -353,6 +356,14 @@ function endTurn(ws, data) {
             }
         }
     }
+}
+
+function nextTurn(room) {
+    room.turnIterator = room.iterator === room.clients.length-1 ? 0 : room.turnIterator + 1;
+    let player = room.clients[room.turnIterator];
+    room.turnStage = stage.THROWING;
+    room.pendingResponse.add(player);
+    sendMsgCanThrowDice(player);
 }
 
 function checkTurn(crossedMatrix, tiles, number, color) {
