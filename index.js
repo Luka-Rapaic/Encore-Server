@@ -18,7 +18,10 @@
 
 // import * as crypto from "node:crypto";
 
+const VerifyData = require("./verifyData");
 const GenerateMessage = require("./GenerateMessage");
+const InvalidStateError = require("./CustomErrors")[0];
+const InvalidMessageError = require("./CustomErrors")[1];
 const crypto = require("crypto");
 const WebSocket = require("ws");
 
@@ -293,7 +296,7 @@ function leaveGame(ws) {
     }
 
     if (room.pendingResponse.has(ws)) {
-        room.pendingResponse.remove(ws);
+        room.pendingResponse.delete(ws);
         if (room.turnStage === stage.THROWING || room.turnStage === stage.PLAYER) nextTurn(); //TODO: implement next turn;
     }
 }
@@ -314,22 +317,26 @@ function throwDice(ws) {
     }
 
     room.dice = dice;
-    room.turnStage = stage.PLAYER;
 
     for (let client of room.clients) {
         GenerateMessage.newDice(client, dice);
     }
 
-    sendMsgPlayTurn(ws);
+    nextStage(room);
 }
 
 function endTurn(ws, data) {
+    // GenerateMessage.invalidTurn(ws);
+    // return;
+    //TEMPORARY
+
     if (ws.state !== state.GAME) ws.close();
 
     let room = ws.room;
     if (room.turnStage !== stage.PLAYER && room.turnStage !== stage.OTHERS) ws.close();
 
-    let tiles, numberIndex, colorIndex = verifyData.turnSubmission(data);
+    let tiles, numberIndex, colorIndex;
+    [tiles, numberIndex, colorIndex] = VerifyData.turnSubmission(data);
 
     let dice = room.dice;
     let number = dice[numberIndex];
@@ -338,45 +345,80 @@ function endTurn(ws, data) {
 
     if (room.turnStage === stage.PLAYER) {
         if (room.pendingResponse.has(ws)) {
-            checkTurn(crossedMatrix, tiles, number, color);
-            saveTurn(ws, crossedMatrix, room, tiles, number, color);
-            updateDice();
-        }
+            if (checkTurn(crossedMatrix, tiles, number, color)) {
+                GenerateMessage.validTurn(ws);
+                room.pendingResponse.delete(ws);
+
+                saveTurn(ws, crossedMatrix, room, tiles, number, color);
+                updateDice(room, numberIndex, colorIndex);
+                nextStage(room);
+            } else {
+                GenerateMessage.invalidTurn(ws);
+            }
+        } else ws.close();
     }
     else if (room.turnStage === stage.OTHERS) {
         if (room.pendingResponse.has(ws)) {
             if (checkTurn(crossedMatrix, tiles, number, color)) {
-                saveTurn(ws, crossedMatrix, room, tiles, number, color);
+                GenerateMessage.validTurn(ws);
                 room.pendingResponse.delete(ws);
+
+                saveTurn(ws, crossedMatrix, room, tiles, number, color);
                 if (room.pendingResponse.length === 0) {
-                    nextTurn();
+                    nextStage(room);
                 }
             } else {
-                sendMsgInvalidTurn();
+                GenerateMessage.invalidTurn(ws);
             }
         }
     }
 }
 
-function nextTurn(room) {
-    room.turnIterator = room.iterator === room.clients.length-1 ? 0 : room.turnIterator + 1;
-    let player = room.clients[room.turnIterator];
-    room.turnStage = stage.THROWING;
-    room.pendingResponse.add(player);
-    sendMsgCanThrowDice(player);
+function nextStage(room) {
+    switch (room.turnStage) {
+        case stage.THROWING:
+            {
+                console.log("STAGE THROWING");
+                let player = room.clients[room.turnIterator];
+                room.pendingResponse.add(player);
+                GenerateMessage.yourTurn(player);
+                room.turnStage = stage.PLAYER;
+            }
+            break;
+        case stage.PLAYER:
+            {
+                console.log("STAGE PLAYER");
+                for (let i = 0; i < room.clients.length; i++) if (i !== room.turnIterator) {
+                    room.pendingResponse.add(room.clients[i]);
+                    GenerateMessage.yourTurn(room.clients[i]);
+                }
+                room.turnStage = stage.OTHERS;
+            }
+            break;
+        default:
+            {
+                console.log("STAGE OTHERS");
+                room.turnIterator = room.turnIterator === room.clients.length-1 ? 0 : room.turnIterator + 1;
+                let player = room.clients[room.turnIterator];
+                room.pendingResponse.add(player);
+                GenerateMessage.throwDice(player);
+                room.turnStage = stage.THROWING;
+            }
+            break;
+    }
 }
 
 function checkTurn(crossedMatrix, tiles, number, color) {
     if (number !== tiles.length) return false;
-
-    for (let tile of tiles) if (colorMatrix[tile.y][tile.x] !== color) return false;
-
+    console.log("number === tiles.length")
+    for (let tile of tiles) if (colorMatrix[tile.y][tile.x] !== color[0]) return false;
+    console.log("All tiles of color")
     if (!isClumped(tiles)) return false;
-
+    console.log("All tiles are clumped!")
     for (let tile of tiles) if (tile.x === 7) return true;
-
+    console.log("No tiles on column 7")
     for (let tile of tiles) if (isAdjacent(crossedMatrix, tile)) return true;
-
+    console.log("No adjescent tiles")
     return false;
 }
 
@@ -500,11 +542,12 @@ function countPoints(ws) {
     return totalPoints;
 }
 
-function updateDice(dice, numberIndex, colorIndex) {
-    dice[numberIndex] = -1;
-    dice[colorIndex] = 'taken';
-    //TODO: Notify players of changes;
+function updateDice(room, numberIndex, colorIndex) {
+    room.dice[numberIndex] = -1;
+    room.dice[colorIndex] = 'taken';
+    for (let client of room.clients) GenerateMessage.newDice(client, room.dice);
 }
+
 
 //TYPE 200
 function sendMsgNameAccepted(ws) {

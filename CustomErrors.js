@@ -11,3 +11,5 @@ class InvalidMessageError extends Error {
         this.name = "InvalidMessageError";
     }
 }
+
+module.exports = [InvalidStateError, InvalidMessageError];

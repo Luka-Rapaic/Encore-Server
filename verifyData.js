@@ -1,5 +1,5 @@
-class verifyData {
-    static turnSubmission(data): [any, any, any] {
+class VerifyData {
+    static turnSubmission(data) {
         if (!data.hasOwnProperty("selectedTiles") || !data.hasOwnProperty("selectedDice")) throw new InvalidMessageError();
 
         let selectedTiles = data.selectedTiles;
@@ -18,8 +18,10 @@ class verifyData {
         let number = selectedDice.number;
         let color = selectedDice.color;
 
-        if (number < 0 || number > 2 || color < 3 || color > 5) throw new InvalidMessageError();
+        if (color < 0 || color > 2 || number < 3 || number > 5) throw new InvalidMessageError();
 
         return [selectedTiles, number, color];
     }
 }
+
+module.exports = VerifyData
