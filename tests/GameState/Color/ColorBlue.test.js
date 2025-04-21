@@ -1,5 +1,5 @@
-const ColorBlue = require("../../src/GameState/Color/ColorBlue");
-const Tile = require("../../src/Tile");
+const ColorBlue = require("../../../src/GameState/Color/ColorBlue");
+const Tile = require("../../../src/Tile");
 
 const tiles = [
     new Tile(0, 8),

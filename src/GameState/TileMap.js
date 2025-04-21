@@ -1,4 +1,4 @@
-class ColorMap {
+class TileMap {
     #map;
 
     constructor(map) {
@@ -13,6 +13,10 @@ class ColorMap {
     delete(tile) {
         this.#map.get(tile.row).delete(tile.column)
     }
+
+    size() {
+        return this.#map.size();
+    }
 }
 
-module.exports = ColorMap;
+module.exports = TileMap;

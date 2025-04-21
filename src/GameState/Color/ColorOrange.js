@@ -1,9 +1,9 @@
 const Color = require("./Color");
-const ColorMap = require("./ColorMap");
+const TileMap = require("../TileMap");
 
 class ColorOrange extends Color {
     constructor() {
-        let orangeMap = new ColorMap(
+        let orangeMap = new TileMap(
             new Map([
                 [0, new Set([11])],
                 [1, new Set([0, 6, 7, 11, 12])],
