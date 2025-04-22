@@ -15,7 +15,10 @@ class TileMap {
     }
 
     size() {
-        return this.#map.size();
+        let size = 0;
+        for (const [, value] of this.#map)
+            size += value.size;
+        return size;
     }
 }
 
