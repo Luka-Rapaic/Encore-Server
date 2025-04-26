@@ -1,4 +1,4 @@
-const StarTiles = require("../../src/GameState/StarTiles");
+const StarTiles = require("../../src/PlayerState/StarTiles");
 const Tile = require("../../src/Tile");
 
 const starTilesArray = [

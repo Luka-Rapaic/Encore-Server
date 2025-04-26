@@ -1,4 +1,4 @@
-const Columns = require("../../src/GameState/Columns");
+const Columns = require("../../src/PlayerState/Columns");
 const ColumnOverflowError = require("../../src/Errors/ColumnOverflowError");
 
 test("Returns false when only a single tile in a column gets crossed", () => {
