@@ -6,15 +6,15 @@ class ColumnScorer {
     ];
 
     // Tracks whether each column has been scored at least once
-    #isFirstScore = new Array(15).fill(false);
+    #isFirstScore = new Array(15).fill(true);
 
     getScore(column) {
-        if (this.#isFirstScore[column] === false) {
-            this.#isFirstScore[column] = true
-            return this.#scoreMatrix[0][column] // First-time score
+        if (this.#isFirstScore[column]) {
+            this.#isFirstScore[column] = false;
+            return this.#scoreMatrix[0][column]; // First-time score
         }
-        return this.#scoreMatrix[1][column] // Subsequent score
+        return this.#scoreMatrix[1][column]; // Subsequent score
     }
 }
 
-module.exports = ColumnScorer
+module.exports = ColumnScorer;
