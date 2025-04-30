@@ -3,6 +3,7 @@ const ColorGreen = require("./Color/ColorGreen");
 const ColorRed = require("./Color/ColorRed");
 const ColorOrange = require("./Color/ColorOrange");
 const ColorYellow = require("./Color/ColorYellow");
+const Stars = require("./Stars");
 
 class PlayerState {
     #blueTiles = new ColorBlue();
@@ -10,6 +11,9 @@ class PlayerState {
     #redTiles = new ColorRed();
     #orangeTiles = new ColorOrange();
     #yellowTiles = new ColorYellow();
+    #stars = new Stars();
+
+    #completedColorCount = 0;
 
     cross(tiles, color) {
         let coloredTiles;
@@ -33,7 +37,18 @@ class PlayerState {
         }
 
         if (coloredTiles.crossTiles(tiles)) {
-            //TODO: Finish later
+            this.#stars.crossTiles(tiles);
+            if (coloredTiles.areAllCrossed()) this.#completedColorCount++;
+            return true;
         }
+        return false;
+    }
+
+    countCompletedColors() {
+        return this.#completedColorCount;
+    }
+
+    countCrossedStars() {
+        return this.#stars.getCrossedCount();
     }
 }

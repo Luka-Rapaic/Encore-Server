@@ -1,6 +1,6 @@
 const TileMap = require("./TileMap");
 
-class StarTiles {
+class Stars {
     #tileMap;
 
     constructor() {
@@ -27,4 +27,4 @@ class StarTiles {
     }
 }
 
-module.exports = StarTiles;
+module.exports = Stars;

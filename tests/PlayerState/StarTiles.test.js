@@ -1,4 +1,4 @@
-const StarTiles = require("../../src/PlayerState/StarTiles");
+const Stars = require("../../src/PlayerState/Stars");
 const Tile = require("../../src/Tile");
 
 const starTilesArray = [
@@ -26,7 +26,7 @@ const starTilesArray = [
 
 test("Check if getCrossedCount() returns 15 after all star tiles are crossed", () => {
     // GIVEN
-    const starTiles = new StarTiles();
+    const starTiles = new Stars();
 
     // WHEN I cross all the star tiles
     starTiles.crossTiles(starTilesArray);
@@ -37,7 +37,7 @@ test("Check if getCrossedCount() returns 15 after all star tiles are crossed", (
 
 test("Check if getCrossedCount() returns correct number after partial cross", () => {
     // GIVEN
-    const starTiles = new StarTiles();
+    const starTiles = new Stars();
     const tiles = [
         new Tile(0, 7),
         new Tile(1, 2),
@@ -53,7 +53,7 @@ test("Check if getCrossedCount() returns correct number after partial cross", ()
 
 test("Check if getCrossedCount() returns 0 when no tile is crossed", () => {
     // GIVEN
-    const starTiles = new StarTiles();
+    const starTiles = new Stars();
     const tile = new Tile(0, 8); // Not in star set
 
     // WHEN I try to cross a non-star tile
