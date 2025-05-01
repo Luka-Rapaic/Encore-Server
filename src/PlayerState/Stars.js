@@ -22,8 +22,8 @@ class Stars {
                 this.#tileMap.delete(tile)
     }
 
-    getCrossedCount() {
-        return 15 - this.#tileMap.size();
+    getLeftoverCount() {
+        return this.#tileMap.size();
     }
 }
 

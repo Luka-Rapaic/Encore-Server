@@ -6,7 +6,7 @@ class Columns {
             this.#column.push(0)
     }
 
-    crossTile(column) {
+    crossColumn(column) {
         this.#column[column]++;
 
         if (this.#column[column] > 7)

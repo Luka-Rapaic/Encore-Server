@@ -1,7 +1,7 @@
 const Stars = require("../../src/PlayerState/Stars");
 const Tile = require("../../src/Tile");
 
-const starTilesArray = [
+const starArray = [
     new Tile(0, 7),
     new Tile(0, 11),
 
@@ -24,20 +24,20 @@ const starTilesArray = [
     new Tile(6, 12)
 ];
 
-test("Check if getCrossedCount() returns 15 after all star tiles are crossed", () => {
+test("Check if getLeftoverCount() returns 0 after all star tiles are crossed", () => {
     // GIVEN
-    const starTiles = new Stars();
+    const stars = new Stars();
 
     // WHEN I cross all the star tiles
-    starTiles.crossTiles(starTilesArray);
+    stars.crossTiles(starArray);
 
     // THEN
-    expect(starTiles.getCrossedCount()).toBe(15);
+    expect(stars.getLeftoverCount()).toBe(0);
 });
 
 test("Check if getCrossedCount() returns correct number after partial cross", () => {
     // GIVEN
-    const starTiles = new Stars();
+    const stars = new Stars();
     const tiles = [
         new Tile(0, 7),
         new Tile(1, 2),
@@ -45,20 +45,20 @@ test("Check if getCrossedCount() returns correct number after partial cross", ()
     ];
 
     // WHEN I cross a few star tiles
-    starTiles.crossTiles(tiles);
+    stars.crossTiles(tiles);
 
     // THEN
-    expect(starTiles.getCrossedCount()).toBe(3);
+    expect(stars.getLeftoverCount()).toBe(12);
 });
 
-test("Check if getCrossedCount() returns 0 when no tile is crossed", () => {
+test("Check if getCrossedCount() returns 15 when no tile is crossed", () => {
     // GIVEN
-    const starTiles = new Stars();
+    const stars = new Stars();
     const tile = new Tile(0, 8); // Not in star set
 
     // WHEN I try to cross a non-star tile
-    starTiles.crossTiles([tile]);
+    stars.crossTiles([tile]);
 
     // THEN
-    expect(starTiles.getCrossedCount()).toBe(0);
+    expect(stars.getLeftoverCount()).toBe(15);
 });
