@@ -7,13 +7,24 @@ class ColumnScorer {
 
     // Tracks whether each column has been scored at least once
     #isFirstScore = new Array(15).fill(true);
+    #scoredThisTurn = new Array(15).fill(false);
 
     getScore(column) {
+        this.#scoredThisTurn[column] = true;
         if (this.#isFirstScore[column]) {
-            this.#isFirstScore[column] = false;
             return this.#scoreMatrix[0][column]; // First-time score
         }
         return this.#scoreMatrix[1][column]; // Subsequent score
+    }
+
+    endTurn() {
+        for (let column = 0; column < 15; column++) {
+            if (this.#scoredThisTurn[column]) {
+                this.#scoredThisTurn[column] = false;
+                if (this.#isFirstScore[column])
+                    this.#isFirstScore[column] = false;
+            }
+        }
     }
 }
 
