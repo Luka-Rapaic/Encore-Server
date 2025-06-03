@@ -5,6 +5,7 @@ const ColorOrange = require("./Color/ColorOrange");
 const ColorYellow = require("./Color/ColorYellow");
 const Stars = require("./Stars");
 const Columns = require("./Columns");
+const Response = require("./../Response");
 
 class PlayerState {
     #blueTiles = new ColorBlue();
@@ -16,24 +17,27 @@ class PlayerState {
     #columns = new Columns();
 
     #completedColorCount = 0;
-    #points = 0;
+    #points = -30;
 
+    #player;
     #columnScorer;
     #colorScorer;
 
-    constructor(columnScorer, colorScorer) {
+    constructor(player, columnScorer, colorScorer) {
+        this.#player = player;
         this.#columnScorer = columnScorer;
         this.#colorScorer = colorScorer;
     }
 
 
     cross(tiles, color) {
-        if (!this.#crossColor(tiles, color)) return false;
+        const points =
+            this.#crossColor(tiles, color) +
+            this.#crossColumns(tiles) +
+            this.#stars.crossTiles(tiles);
 
-        this.#crossColumns(tiles);
-        this.#stars.crossTiles(tiles);
-
-        return true;
+        this.#points += points;
+        Response.choose(this.#player, points);
     }
 
     #crossColor(tiles, color) {
@@ -57,20 +61,24 @@ class PlayerState {
                 break;
         }
 
-        if (coloredTiles.crossTiles(tiles)) {
-            if (coloredTiles.areAllCrossed()) {
-                this.#completedColorCount++;
-                this.#points += this.#colorScorer.getScore(color);
-            }
-            return true;
+        coloredTiles.crossTiles(tiles);
+
+        if (coloredTiles.areAllCrossed()) {
+            this.#completedColorCount++;
+            return this.#colorScorer.getScore(this.#player, color);
         }
-        return false;
+
+        return 0;
     }
 
     #crossColumns(tiles) {
+        let points = 0;
+
         for (const tile of tiles)
             if (this.#columns.crossColumn(tile.column))
-                this.#points += this.#columnScorer.getScore(tile.column);
+                points += this.#columnScorer.getScore(this.#player, tile.column);
+
+        return points;
     }
 
     countCompletedColors() {
@@ -78,6 +86,8 @@ class PlayerState {
     }
 
     getScore() {
-        return this.#points - this.#stars.getLeftoverCount() * 2;
+        return this.#points;
     }
 }
+
+module.exports = PlayerState;

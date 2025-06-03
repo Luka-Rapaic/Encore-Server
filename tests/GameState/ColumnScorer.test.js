@@ -1,4 +1,4 @@
-const ColumnScorer = require("../../src/GameState/ColumnScorer");
+const ColumnScorer = require("../../src/GameState/Scorers/ColumnScorer");
 
 test("getScore() should return the correct first-time score for a column", () => {
     // GIVEN

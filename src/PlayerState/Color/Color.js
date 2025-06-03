@@ -1,3 +1,5 @@
+const InvalidChoiceError = require("./InvalidChoiceError");
+
 class Color {
     #tileMap;
 
@@ -6,11 +8,8 @@ class Color {
     }
 
     crossTiles(tiles) {
-        if (this.#checkTiles(tiles)) {
-            for (let tile of tiles) this.#tileMap.delete(tile)
-            return true
-        }
-        return false;
+        this.#checkTiles(tiles);
+        for (let tile of tiles) this.#tileMap.delete(tile);
     }
 
     areAllCrossed() {
@@ -20,8 +19,7 @@ class Color {
     #checkTiles(tiles) {
         for (let tile of tiles)
             if (!this.#tileMap.has(tile))
-                return false;
-        return true;
+                throw new InvalidChoiceError();
     }
 }
 

@@ -17,13 +17,15 @@ class Stars {
     }
 
     crossTiles(tiles) {
-        for (let tile of tiles)
-            if (this.#tileMap.has(tile))
-                this.#tileMap.delete(tile)
-    }
+        let points = 0;
 
-    getLeftoverCount() {
-        return this.#tileMap.size();
+        for (let tile of tiles)
+            if (this.#tileMap.has(tile)) {
+                this.#tileMap.delete(tile);
+                points += 2;
+            }
+
+        return points;
     }
 }
 

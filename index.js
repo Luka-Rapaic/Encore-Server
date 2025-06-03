@@ -19,6 +19,8 @@
 // import * as crypto from "node:crypto";
 
 const VerifyData = require("./verifyData");
+const Response = require("./src/Response");
+const {Request, RequestCodes} = require("./src/Request");
 const GenerateMessage = require("./GenerateMessage");
 const InvalidStateError = require("./CustomErrors")[0];
 const InvalidMessageError = require("./CustomErrors")[1];
@@ -83,6 +85,23 @@ wss.on("connection", ws => {
     ws.roomID = null;
 
     ws.on("message", message => {
+        try {
+            const data = JSON.parse(message);
+
+            switch (data.code) {
+                case RequestCodes.ROLL_DICE:
+                    Request.rollDice(ws);
+                    break;
+                case RequestCodes.CHOICE:
+                    Request
+                default:
+                    Response.invalidRequestResponse(ws, "Invalid code");
+                    ws.close();
+            }
+        } catch {
+            Response.invalidJsonResponse(ws);
+            ws.close();
+        }
         let data = JSON.parse(message);
         if (!data.hasOwnProperty("type")) ws.close();
         console.log(data);

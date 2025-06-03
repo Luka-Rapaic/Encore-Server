@@ -1,4 +1,4 @@
-const ColorScorer = require("../../src/GameState/ColorScorer");
+const ColorScorer = require("../../src/GameState/Scorers/ColorScorer");
 
 test("getScore() should return 5 for first-time scoring of a color", () => {
     // GIVEN
